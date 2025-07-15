@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block title %}Administration - LIGGUEY-SINAA{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <header class="admin-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="{{ url_for('static', filename='images/DB-logo.jpeg') }}" alt="Logo Direction des Bourses" class="logo">
+                <div class="title-section">
+                    <h1>Administration LIGGUEY-SINAA</h1>
+                    <p>Gestion des employés et des présences</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="/admin/logout" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Déconnexion
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <nav class="admin-nav">
+        <button class="nav-btn active" data-section="employees">
+            <i class="fas fa-users"></i>
+            Employés
+        </button>
+        <button class="nav-btn" data-section="present">
+            <i class="fas fa-user-check"></i>
+            Présents
+        </button>
+        <button class="nav-btn" data-section="attendance">
+            <i class="fas fa-calendar-check"></i>
+            Présences
+        </button>
+        <button class="nav-btn" data-section="absence">
+            <i class="fas fa-user-slash"></i>
+            Absences
+        </button>
+        <button class="nav-btn" data-section="tracking">
+            <i class="fas fa-user-clock"></i>
+            Suivi Agent
+        </button>
+        <button class="nav-btn" data-section="reports">
+            <i class="fas fa-chart-bar"></i>
+            Rapports
+        </button>
+    </nav>
+
+    <main class="admin-content">
+        <!-- Section Employés -->
+        <section id="employees-section" class="admin-section active">
+            <div class="section-header">
+                <h2><i class="fas fa-users"></i> Gestion des Employés</h2>
+                <button id="addEmployeeBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Ajouter un employé
+                </button>
+            </div>
+            
+            <div class="employees-grid" id="employeesGrid">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Chargement des employés...
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Employés Présents -->
+        <section id="present-section" class="admin-section">
+            <div class="section-header">
+                <h2><i class="fas fa-user-check"></i> Employés Actuellement Présents</h2>
+                <div class="real-time-indicator">
+                    <i class="fas fa-circle" style="color: var(--success-green); animation: pulse 2s infinite;"></i>
+                    <span>Temps réel</span>
+                </div>
+            </div>
+            
+            <div class="employees-grid" id="presentEmployeesGrid">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Chargement des employés présents...
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Absences -->
+        <section id="absence-section" class="admin-section">
+            <div class="section-header">
+                <h2><i class="fas fa-user-slash"></i> Gestion des Absences</h2>
+                <div class="date-controls">
+                    <input type="date" id="absenceDate" class="date-input">
+                    <select id="absenceDepartment">
+                        <option value="">Tous départements</option>
+                        <option value="informatique">Informatique</option>
+                        <option value="rh">Ressources Humaines</option>
+                        <option value="commercial">Commercial</option>
+                        <option value="finance">Finance</option>
+                        <option value="administration">Administration</option>
+                        <option value="direction">Direction</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="employees-grid" id="absentEmployeesGrid">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Chargement des absences...
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Suivi Agent -->
+        <section id="tracking-section" class="admin-section">
+            <div class="section-header">
+                <h2><i class="fas fa-user-clock"></i> Suivi des Agents</h2>
+            </div>
+            
+            <div class="search-controls">
+                <input type="text" id="employeeSearch" placeholder="Recherche par matricule...">
+                <select id="departmentSearch">
+                    <option value="">Tous départements</option>
+                    <!-- Options dynamiques -->
+
+
+                    
+                </select>
+                <input type="month" id="monthSearch" value="{{ current_month }}">
+            </div>
+            
+            <div class="tracking-table-container">
+                <!-- Tableau dynamique -->
+            </div>
+        </section>
+
+        <!-- Section Présences -->
+        <section id="attendance-section" class="admin-section">
+            <div class="section-header">
+                <h2><i class="fas fa-calendar-check"></i> Présences du jour</h2>
+                <div class="date-controls">
+                    <input type="date" id="attendanceDate" class="date-input">
+                    <button id="downloadAttendanceBtn" class="btn btn-secondary">
+                        <i class="fas fa-download"></i>
+                        Télécharger
+                    </button>
+                </div>
+            </div>
+            
+            <div class="attendance-table-container">
+                <table class="attendance-table" id="attendanceTable">
+                    <thead>
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Nom Complet</th>
+                            <th>Département</th>
+                            <th>Heure d'arrivée</th>
+                            <th>Heure de départ</th>
+                            <th>Temps de travail</th>
+                            <th>Signature</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="7" class="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Chargement des présences...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section Rapports -->
+        <section id="reports-section" class="admin-section">
+            <div class="section-header">
+                <h2><i class="fas fa-chart-bar"></i> Rapports et Statistiques</h2>
+                <div class="date-controls">
+                    <input type="date" id="reportDate" class="date-input">
+                    <select id="reportDepartment">
+                        <option value="">Tous départements</option>
+                        <option value="informatique">Informatique</option>
+                        <option value="rh">Ressources Humaines</option>
+                        <option value="commercial">Commercial</option>
+                        <option value="finance">Finance</option>
+                        <option value="administration">Administration</option>
+                        <option value="direction">Direction</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="reports-grid">
+                <div class="report-card">
+                    <div class="report-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="report-content">
+                        <h3>Total Employés</h3>
+                        <div class="report-value" id="totalEmployees">-</div>
+                    </div>
+                </div>
+                
+                <div class="report-card">
+                    <div class="report-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="report-content">
+                        <h3>Présents Aujourd'hui</h3>
+                        <div class="report-value" id="presentToday">-</div>
+                    </div>
+                </div>
+                
+                <div class="report-card">
+                    <div class="report-icon">
+                        <i class="fas fa-user-slash"></i>
+                    </div>
+                    <div class="report-content">
+                        <h3>Absents Aujourd'hui</h3>
+                        <div class="report-value" id="absentToday">-</div>
+                    </div>
+                </div>
+                
+                <div class="report-card">
+                    <div class="report-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="report-content">
+                        <h3>Temps Moyen</h3>
+                        <div class="report-value" id="averageTime">-</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- Modal Ajout Employé -->
+<div id="addEmployeeModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-plus"></i> Ajouter un Employé</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        
+        <form id="addEmployeeForm" class="modal-form" enctype="multipart/form-data">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="matricule">Matricule *</label>
+                    <input type="text" id="matricule" name="matricule" required>
+                </div>
+                <div class="form-group">
+                    <label for="nom">Nom *</label>
+                    <input type="text" id="nom" name="nom" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="prenom">Prénom *</label>
+                    <input type="text" id="prenom" name="prenom" required>
+                </div>
+                <div class="form-group">
+                    <label for="telephone">Téléphone</label>
+                    <input type="tel" id="telephone" name="telephone">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="departement">Département *</label>
+                <select id="departement" name="departement" required>
+                    <option value="">Sélectionner un département</option>
+                    <option value="informatique">Informatique</option>
+                    <option value="rh">Ressources Humaines</option>
+                    <option value="commercial">Commercial</option>
+                    <option value="finance">Finance</option>
+                    <option value="administration">Administration</option>
+                    <option value="direction">Direction</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="photo">Photo *</label>
+                <input type="file" id="photo" name="photo" accept="image/*" required>
+                <div class="file-info">Formats acceptés: JPG, PNG, JPEG</div>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="cancelAddEmployee">Annuler</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Enregistrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

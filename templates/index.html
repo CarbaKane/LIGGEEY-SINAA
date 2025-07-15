@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}LIGGUEY-SINAA - Reconnaissance Faciale{% endblock %}
+
+{% block extra_head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <header class="app-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="{{ url_for('static', filename='images/DB-logo.jpeg') }}" alt="Logo Direction des Bourses" class="logo">
+                <div class="title-section">
+                    <h1>LIGGUEY-SINAA</h1>
+                    <p>Système de Gestion de Présence</p>
+                    <span class="subtitle">Des agents</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="/admin" class="admin-link">
+                    <i class="fas fa-cog"></i>
+                    Administration
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="recognition-section">
+            <div class="section-header">
+                <h2><i class="fas fa-camera"></i> Reconnaissance Faciale</h2>
+                <p>Placez-vous devant la caméra pour enregistrer votre présence</p>
+            </div>
+            
+            <div class="camera-container">
+                <div class="camera-wrapper">
+                    <video id="camera" autoplay playsinline muted></video>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                    <div class="camera-overlay">
+                        <div class="scan-frame"></div>
+                        <div class="scan-line"></div>
+                    </div>
+                    <div class="camera-status" id="cameraStatus">
+                        <i class="fas fa-video-slash"></i>
+                        <span>Caméra désactivée</span>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button id="startBtn" class="btn btn-primary">
+                        <i class="fas fa-play"></i>
+                        Démarrer la caméra
+                    </button>
+                    <button id="stopBtn" class="btn btn-secondary" disabled>
+                        <i class="fas fa-stop"></i>
+                        Arrêter
+                    </button>
+                    <button id="captureBtn" class="btn btn-success" disabled>
+                        <i class="fas fa-camera"></i>
+                        Scanner le visage
+                    </button>
+                </div>
+            </div>
+            
+            <div id="messageContainer" class="message-container">
+                <div id="message" class="message"></div>
+            </div>
+        </div>
+        
+        <div class="instructions-section">
+            <h3><i class="fas fa-info-circle"></i> Instructions d'utilisation</h3>
+            <div class="instructions-grid">
+                <div class="instruction-item">
+                    <div class="instruction-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="instruction-content">
+                        <h4>1. Démarrer la caméra</h4>
+                        <p>Cliquez sur "Démarrer la caméra" pour activer la reconnaissance faciale</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-item">
+                    <div class="instruction-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="instruction-content">
+                        <h4>2. Positionnement</h4>
+                        <p>Placez-vous face à la caméra dans le cadre de scan</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-item">
+                    <div class="instruction-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <div class="instruction-content">
+                        <h4>3. Scanner</h4>
+                        <p>Cliquez sur "Scanner le visage" pour enregistrer votre présence</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-item">
+                    <div class="instruction-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="instruction-content">
+                        <h4>4. Confirmation</h4>
+                        <p>Votre présence sera automatiquement enregistrée</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="app-footer">
+        <p>&copy; 2025 carbakane@gmail.com - Système De Gestion des employés et Présences</p>
+    </footer>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+{% endblock %}

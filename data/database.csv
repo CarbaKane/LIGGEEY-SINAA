@@ -1,0 +1,6 @@
+matricule,nom,prenom,telephone,departement,image_path
+DB001,KANE,BABACAR,781234567,informatique,babacar_kane.png
+DB003,NDIAYE,ASSANE,701234569,commercial,assane_ndiaye.jpeg
+DB05,DIEME,ALIOU,761442086,finance,aliou_dieme.jpg
+DB06,SOUMARE,SAMBA,761442086,Privée,samba_soumare.jpeg
+DB07,SOW,RAMATA,706345959,direction,ramata_sow.jpg
