@@ -12,127 +12,127 @@ class FaceService:
     def __init__(self):
         self.known_face_encodings = []
         self.known_face_metadata = []
-        self.load_known_faces()
+        self.load_known_faces()  # Charge les visages connus à l'initialisation
 
     def load_known_faces(self):
-        """Charge les visages connus depuis la base de données"""
+        """Charge les visages connus depuis la base de données et retourne les logs"""
+        logs = []
         try:
-            # Charger la base de données CSV
+            logs.append("\nChargement des visages connus depuis la base de données...")
             db_path = os.path.join('data', 'database.csv')
+            
+            # Vérifie si la base de données existe
             if not os.path.exists(db_path):
-                df = pd.DataFrame(columns=['matricule', 'nom', 'prenom', 'telephone', 'departement', 'image_path'])
+                df = pd.DataFrame(columns=['matricule', 'nom', 'prenom', 'telephone', 
+                                        'lieu_habitation', 'departement', 'image_path'])
                 df.to_csv(db_path, index=False)
-                print("[INFO] Base de données créée avec succès")
-                return
+                logs.append("Création d'une nouvelle base de données vide.")
+                return logs
 
             df = pd.read_csv(db_path)
-            
-            # Réinitialiser les données
             self.known_face_encodings = []
             self.known_face_metadata = []
+            loaded_count = 0
+            missing_images = 0
+            no_face_detected = 0
             
-            print("\n[INFO] Chargement des visages enregistrés:")
+            header = f"\n{'Matricule':<10} | {'Nom complet':<25} | {'Fichier image':<20} | Statut"
+            separator = "-" * 70
+            logs.extend([header, separator])
+            
             for _, row in df.iterrows():
-                image_path = os.path.join('data', 'images', row['image_path'])
-                if not os.path.exists(image_path):
-                    print(f"[WARNING] Fichier image manquant pour {row['prenom']} {row['nom']}: {image_path}")
+                status = ""
+                if pd.isna(row['image_path']):
+                    status = "Aucune image associée"
+                    logs.append(f"{row['matricule']:<10} | {row['prenom'] + ' ' + row['nom']:<25} | {'':<20} | {status}")
                     continue
-                
-                # Charger l'image
-                image = face_recognition.load_image_file(image_path)
-                
-                # Détecter les encodages faciaux
-                face_encodings = face_recognition.face_encodings(image)
-                if len(face_encodings) > 0:
-                    self.known_face_encodings.append(face_encodings[0])
-                    self.known_face_metadata.append({
-                        'matricule': row['matricule'],
-                        'nom': row['nom'],
-                        'prenom': row['prenom'],
-                        'telephone': row['telephone'],
-                        'departement': row['departement'],
-                        'image_path': row['image_path']
-                    })
-                    print(f"[SUCCESS] Visage validé: {row['prenom']} {row['nom']} ({row['matricule']})")
-                else:
-                    print(f"[WARNING] Aucun visage détecté dans l'image de {row['prenom']} {row['nom']}")
                     
-            print(f"\n[INFO] Chargement terminé. {len(self.known_face_encodings)} visages valides enregistrés")
-            
-        except Exception as e:
-            print(f"[ERROR] Erreur lors du chargement des visages connus: {str(e)}")
-
-    def _is_object(self, image_data):
-        """Détecte si l'image est un objet plutôt qu'un visage réel"""
-        try:
-            # Convertir l'image en numpy array
-            image = self._convert_image_data(image_data)
-            
-            # Vérifier la présence de visages
-            face_locations = face_recognition.face_locations(image)
-            
-            # Si aucun visage détecté ou si l'image est trop plate (photo de photo)
-            if len(face_locations) == 0:
-                return True
+                image_path = os.path.join('data', 'images', row['image_path'])
                 
-            # Vérifier la variance de l'image (photo de photo a souvent une variance faible)
-            gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-            variance = cv2.Laplacian(gray, cv2.CV_64F).var()
+                if not os.path.exists(image_path):
+                    status = "Fichier image manquant"
+                    missing_images += 1
+                    logs.append(f"{row['matricule']:<10} | {row['prenom'] + ' ' + row['nom']:<25} | {row['image_path']:<20} | {status}")
+                    continue
+                    
+                try:
+                    image = face_recognition.load_image_file(image_path)
+                    face_encodings = face_recognition.face_encodings(image)
+                    
+                    if len(face_encodings) > 0:
+                        self.known_face_encodings.append(face_encodings[0])
+                        self.known_face_metadata.append({
+                            'matricule': row['matricule'],
+                            'nom': row['nom'],
+                            'prenom': row['prenom'],
+                            'telephone': row['telephone'],
+                            'lieu_habitation': row['lieu_habitation'],
+                            'departement': row['departement'],
+                            'image_path': row['image_path']
+                        })
+                        status = "Chargé avec succès"
+                        loaded_count += 1
+                    else:
+                        status = "Aucun visage détecté"
+                        no_face_detected += 1
+                        
+                    logs.append(f"{row['matricule']:<10} | {row['prenom'] + ' ' + row['nom']:<25} | {row['image_path']:<20} | {status}")
+                    
+                except Exception as e:
+                    status = f"Erreur traitement: {str(e)}"
+                    logs.append(f"{row['matricule']:<10} | {row['prenom'] + ' ' + row['nom']:<25} | {row['image_path']:<20} | {status}")
             
-            if variance < 100:  # Seuil empirique
-                return True
+            # Récapitulatif du chargement des visages
+            summary = [
+                "\nRécapitulatif du chargement:",
+                f"- Employés dans la base: {len(df)}",
+                f"- Visages chargés avec succès: {loaded_count}",
+                f"- Images manquantes: {missing_images}",
+                f"- Aucun visage détecté: {no_face_detected}",
+                f"- Sans image associée: {len(df) - loaded_count - missing_images - no_face_detected}"
+            ]
+            logs.extend(summary)
                 
-            return False
-            
         except Exception as e:
-            print(f"[ERROR] Erreur détection objet: {str(e)}")
-            return False
-
-    def _convert_image_data(self, image_data):
-        """Convertit les données d'image en format numpy array"""
-        if isinstance(image_data, np.ndarray):
-            return image_data
-            
-        if isinstance(image_data, str) and image_data.startswith('data:image/'):
-            header, encoded = image_data.split(",", 1)
-            binary_data = io.BytesIO(base64.b64decode(encoded))
-            image = Image.open(binary_data)
-            return np.array(image)
-        else:
-            nparr = np.frombuffer(image_data, np.uint8)
-            return cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            logs.append(f"\nERREUR lors du chargement des visages: {str(e)}")
+        
+        return logs
 
     def recognize_face(self, image_data):
         """Reconnaît un visage à partir des données d'image"""
         try:
-            # Vérifier si c'est un objet
-            if self._is_object(image_data):
-                return {
-                    'status': 'error',
-                    'message': 'Vous essayez de tricher avec un objet.'
-                }
-            
-            # Convertir l'image
-            unknown_image = self._convert_image_data(image_data)
-            
-            # Trouver tous les visages dans l'image
+            # Conversion des données d'image selon le format d'entrée
+            if isinstance(image_data, str) and image_data.startswith('data:image/'):
+                header, encoded = image_data.split(",", 1)
+                binary_data = io.BytesIO(base64.b64decode(encoded))
+                image = Image.open(binary_data)
+                unknown_image = np.array(image)
+                unknown_image = cv2.cvtColor(unknown_image, cv2.COLOR_RGB2BGR)
+            else:
+                nparr = np.frombuffer(image_data, np.uint8)
+                unknown_image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        
+            # Détection des visages
             face_locations = face_recognition.face_locations(unknown_image)
-            
+        
             if len(face_locations) == 0:
                 return {
                     'status': 'error',
-                    'message': 'Aucun visage détecté. Placez-vous correctement devant la caméra.'
+                    'message': 'Aucun visage détecté'
                 }
-                
-            # Encoder le premier visage trouvé
+            
+            # Encodage du visage détecté
             unknown_encoding = face_recognition.face_encodings(unknown_image, [face_locations[0]])[0]
-            
-            # Comparer avec les visages connus
-            matches = face_recognition.compare_faces(self.known_face_encodings, unknown_encoding, tolerance=0.5)
-            
-            if True in matches:
-                first_match_index = matches.index(True)
-                metadata = self.known_face_metadata[first_match_index]
+        
+            # Comparaison avec les visages connus avec une tolérance plus stricte
+            face_distances = face_recognition.face_distance(self.known_face_encodings, unknown_encoding)
+        
+            # Trouver la meilleure correspondance avec une distance minimale
+            best_match_index = np.argmin(face_distances)
+        
+            # Seuil de reconnaissance plus strict (0.5 par défaut, on passe à 0.4)
+            if face_distances[best_match_index] < 0.4:
+                metadata = self.known_face_metadata[best_match_index]
                 
                 return {
                     'status': 'success',
@@ -143,84 +143,76 @@ class FaceService:
             else:
                 return {
                     'status': 'error',
-                    'message': 'Visage non reconnu. Vous n\'êtes pas enregistré dans le système.'
+                    'message': 'Visage non reconnu'
                 }
-                
+            
         except Exception as e:
             return {
                 'status': 'error',
-                'message': f'Erreur de reconnaissance: {str(e)}'
+                'message': f'Erreur reconnaissance: {str(e)}'
             }
 
     def get_all_employees(self):
+        """Récupère tous les employés de la base de données"""
         try:
             db_path = os.path.join('data', 'database.csv')
             if not os.path.exists(db_path):
-                return []  # Retourne une liste vide si le fichier n'existe pas
+                return []
                 
             df = pd.read_csv(db_path)
-            # Convertir les NaN en chaînes vides
             df = df.fillna('')
             return df.to_dict('records')
         except Exception as e:
-            print(f"[ERROR] Erreur get_all_employees: {str(e)}")
-            return []  # Toujours retourner une liste même en cas d'erreur
-    
-    def add_employee(self, matricule, nom, prenom, telephone, departement, photo):
+            print(f"Erreur get_all_employees: {str(e)}")
+            return []
+
+    def add_employee(self, matricule, nom, prenom, telephone, lieu_habitation, departement, photo):
         """Ajoute un nouvel employé à la base de données"""
         try:
-            # Vérifier si le matricule existe déjà
             db_path = os.path.join('data', 'database.csv')
             if os.path.exists(db_path):
                 df = pd.read_csv(db_path)
                 if matricule in df['matricule'].values:
-                    return False, "Un employé avec ce matricule existe déjà"
+                    return False, "Matricule existe déjà"
             else:
-                df = pd.DataFrame(columns=['matricule', 'nom', 'prenom', 'telephone', 'departement', 'image_path'])
+                df = pd.DataFrame(columns=['matricule', 'nom', 'prenom', 'telephone', 
+                                         'lieu_habitation', 'departement', 'image_path'])
             
-            # Créer le répertoire images s'il n'existe pas
+            # Création du répertoire images si nécessaire
             os.makedirs(os.path.join('data', 'images'), exist_ok=True)
             
-            # Vérifier et traiter la photo
-            if not photo:
-                return False, "Aucune photo fournie"
-            
-            # Générer le nom de fichier selon le format prenom_nom.ext
+            # Vérification du format de l'image
             file_ext = photo.filename.split('.')[-1].lower()
             if file_ext not in ['jpg', 'jpeg', 'png']:
-                return False, "Format de fichier non supporté (seuls JPG, JPEG et PNG sont acceptés)"
+                return False, "Format image non supporté (seuls JPG/JPEG/PNG sont acceptés)"
             
+            # Génération du nom de fichier
             filename = f"{prenom.lower()}_{nom.lower()}.{file_ext}"
             image_path = os.path.join('data', 'images', filename)
             
-            # Sauvegarder l'image
+            # Sauvegarde de l'image
             photo.save(image_path)
             
-            # Vérifier que l'image est valide et contient un visage
+            # Vérification que l'image contient un visage
             try:
-                img = cv2.imread(image_path)
-                if img is None:
-                    os.remove(image_path)
-                    return False, "L'image est corrompue ou invalide"
-                
-                # Vérifier la présence d'un visage
                 image = face_recognition.load_image_file(image_path)
                 face_locations = face_recognition.face_locations(image)
                 if len(face_locations) == 0:
                     os.remove(image_path)
-                    return False, "Aucun visage détecté dans la photo. Veuillez fournir une photo claire de votre visage."
+                    return False, "Aucun visage détecté dans la photo"
                     
             except Exception as e:
                 if os.path.exists(image_path):
                     os.remove(image_path)
-                return False, f"Erreur de traitement de l'image: {str(e)}"
+                return False, f"Erreur traitement image: {str(e)}"
             
-            # Ajouter à la base de données
+            # Ajout de l'employé à la base de données
             new_employee = {
                 'matricule': matricule,
                 'nom': nom,
                 'prenom': prenom,
                 'telephone': telephone if telephone else '',
+                'lieu_habitation': lieu_habitation if lieu_habitation else '',
                 'departement': departement,
                 'image_path': filename
             }
@@ -228,15 +220,15 @@ class FaceService:
             df = pd.concat([df, pd.DataFrame([new_employee])], ignore_index=True)
             df.to_csv(db_path, index=False)
             
-            # Recharger les visages
+            # Rechargement des visages connus
             self.load_known_faces()
             
-            return True, f"Employé {prenom} {nom} ajouté avec succès. Photo enregistrée sous {filename}"
+            return True, f"Employé {prenom} {nom} ajouté avec succès"
             
         except Exception as e:
-            print(f"[ERROR] Erreur ajout employé: {str(e)}")
-            return False, f"Erreur lors de l'ajout: {str(e)}"
-
+            print(f"Erreur ajout employé: {str(e)}")
+            return False, f"Erreur ajout: {str(e)}"
+    
     def delete_employee(self, matricule):
         """Supprime un employé de la base de données"""
         try:
@@ -246,21 +238,23 @@ class FaceService:
             if matricule not in df['matricule'].values:
                 return False, "Employé non trouvé"
                 
-            # Supprimer l'image associée
             employee = df[df['matricule'] == matricule].iloc[0]
-            image_path = os.path.join('data', 'images', employee['image_path'])
-            if os.path.exists(image_path):
-                os.remove(image_path)
             
-            # Supprimer de la base de données
+            # Suppression de l'image associée
+            if not pd.isna(employee['image_path']):
+                image_path = os.path.join('data', 'images', employee['image_path'])
+                if os.path.exists(image_path):
+                    os.remove(image_path)
+            
+            # Suppression de l'entrée dans la base de données
             df = df[df['matricule'] != matricule]
             df.to_csv(db_path, index=False)
             
-            # Recharger les visages
+            # Rechargement des visages connus
             self.load_known_faces()
             
             return True, "Employé supprimé avec succès"
             
         except Exception as e:
-            print(f"[ERROR] Erreur suppression employé: {str(e)}")
-            return False, f"Erreur lors de la suppression: {str(e)}"
+            print(f"Erreur suppression employé: {str(e)}")
+            return False, f"Erreur suppression: {str(e)}"

@@ -1,6 +1,7 @@
-matricule,nom,prenom,telephone,departement,image_path
-DB001,KANE,BABACAR,781234567,informatique,babacar_kane.png
-DB003,NDIAYE,ASSANE,701234569,commercial,assane_ndiaye.jpeg
-DB05,DIEME,ALIOU,761442086,finance,aliou_dieme.jpg
-DB06,SOUMARE,SAMBA,761442086,Privée,samba_soumare.jpeg
-DB07,SOW,RAMATA,706345959,direction,ramata_sow.jpg
+matricule,nom,prenom,telephone,lieu_habitation,departement,image_path
+751984B,KANE,BABACAR,781234567,SEBIKOTANE,informatique,babacar_kane.png
+DB003,NDIAYE,ASSANE,701234569,GUEDIAWAYE,Bourse nationale,assane_ndiaye.jpeg
+DB05,DIEME,ALIOU,761442086,GRAND YOFF,Informatique,aliou_dieme.jpg
+DB06,SOUMARE,SAMBA,761442086,OUAKAM,Bourse nationale,samba_soumare.jpeg
+DB07,SOW,RAMATA,706345959,ZAC MBAO,Bourse nationale,ramata_sow.jpg
+DB008,NDIAYE,FATIMA,7765407689,GUEDIAWAYE,Bourse nationale,fatima_ndiaye.jpeg

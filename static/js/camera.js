@@ -8,6 +8,7 @@ class CameraManager {
         this.stopBtn = document.getElementById('stopBtn');
         this.captureBtn = document.getElementById('captureBtn');
         this.cameraStatus = document.getElementById('cameraStatus');
+        this.messageContainer = document.getElementById('messageContainer');
         
         this.stream = null;
         this.isCapturing = false;
@@ -31,7 +32,7 @@ class CameraManager {
         // Gestion des erreurs vidéo
         this.video.addEventListener('error', (e) => {
             console.error('Erreur vidéo:', e);
-            Utils.showMessage('Erreur lors du chargement de la vidéo', 'error');
+            this.showScanMessage('Erreur lors du chargement de la vidéo', false);
         });
 
         // Mise à jour du statut
@@ -69,7 +70,7 @@ class CameraManager {
                 video: {
                     width: { ideal: this.isMobile ? 480 : 640 },
                     height: { ideal: this.isMobile ? 640 : 480 },
-                    facingMode: 'user',
+                    facingMode: 'user', // Changer pour 'environment' pour la caméra arrière
                     frameRate: { ideal: 15, max: 30 }
                 },
                 audio: false
@@ -111,7 +112,7 @@ class CameraManager {
             this.updateButtons(true);
             this.updateCameraStatus(true);
             
-            Utils.showMessage('Caméra démarrée', 'success', 3000);
+            this.showScanMessage('Caméra démarrée', true);
             this.startAutoScan();
             
         } catch (error) {
@@ -129,7 +130,7 @@ class CameraManager {
                 errorMessage = 'Délai de démarrage dépassé. Réessayez.';
             }
             
-            Utils.showMessage(errorMessage, 'error');
+            this.showScanMessage(errorMessage, false);
             this.updateCameraStatus(false);
         } finally {
             Utils.setButtonLoading(this.startBtn, false);
@@ -149,62 +150,104 @@ class CameraManager {
             this.updateButtons(false);
             this.updateCameraStatus(false);
             
-            Utils.showMessage('Caméra arrêtée', 'success', 2000);
+            this.showScanMessage('Caméra arrêtée', true);
             
         } catch (error) {
             console.error('Erreur arrêt caméra:', error);
-            Utils.showMessage('Erreur lors de l\'arrêt', 'error');
+            this.showScanMessage('Erreur lors de l\'arrêt', false);
         }
     }
 
     async captureAndRecognize() {
-        if (this.isCapturing) return;
-        const currentTime = Date.now();
+    if (this.isCapturing) return;
+    
+    try {
+        this.isCapturing = true;
+        const imageData = this.captureFrame();
+        if (!imageData) throw new Error('Impossible de capturer l\'image');
+
+        const response = await this.sendForRecognition(imageData);
         
-        if (currentTime - this.lastCaptureTime < this.captureDelay) {
-            Utils.showMessage('Veuillez attendre avant un nouveau scan', 'warning');
+        // Gestion spéciale pour le cas "déjà complet"
+        if (response.action === 'deja_complet') {
+            this.showScanMessage(response.message, false);
             return;
         }
         
-        try {
-            this.isCapturing = true;
-            this.lastCaptureTime = currentTime;
-            
-            Utils.setButtonLoading(this.captureBtn, true, 'Analyse...');
-            
-            // Capture optimisée
-            const imageData = this.captureFrame();
-            if (!imageData) {
-                throw new Error('Impossible de capturer l\'image');
-            }
-            
-            // Envoi avec timeout
-            const result = await Promise.race([
-                this.sendForRecognition(imageData),
-                new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Délai dépassé')), 10000))
-            ]);
-            
-            if (result.status === 'success') {
-                Utils.showMessage(result.message, 'success');
-                this.video.classList.add('pulse');
-                setTimeout(() => this.video.classList.remove('pulse'), 1000);
-            } else {
-                Utils.showMessage(result.message, 'error');
-            }
-            
-        } catch (error) {
-            console.error('Erreur reconnaissance:', error);
-            Utils.showMessage(
-                error.message === 'Délai dépassé' 
-                    ? 'La reconnaissance prend trop de temps' 
-                    : 'Erreur de reconnaissance',
-                'error'
-            );
-        } finally {
-            this.isCapturing = false;
-            Utils.setButtonLoading(this.captureBtn, false);
+        if (response.status === 'success') {
+            this.showScanMessage(response.message, true);
+            this.video.classList.add('pulse');
+            setTimeout(() => this.video.classList.remove('pulse'), 1000);
+        } else {
+            this.showScanMessage(response.message, false);
         }
+        
+    } catch (error) {
+        this.showScanMessage(
+            error.message.includes('déjà complété') ? 
+            error.message : 'Erreur de reconnaissance',
+            false
+        );
+    } finally {
+        this.isCapturing = false;
+    }
+}
+
+    showScanMessage(message, isSuccess) {
+        // Création du conteneur de message s'il n'existe pas
+        if (!this.messageContainer) {
+            this.messageContainer = document.createElement('div');
+            this.messageContainer.id = 'messageContainer';
+            this.messageContainer.style.position = 'fixed';
+            this.messageContainer.style.bottom = '20px';
+            this.messageContainer.style.left = '0';
+            this.messageContainer.style.right = '0';
+            this.messageContainer.style.display = 'flex';
+            this.messageContainer.style.justifyContent = 'center';
+            this.messageContainer.style.zIndex = '1000';
+            document.body.appendChild(this.messageContainer);
+        }
+
+        // Création du message
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `scan-message ${isSuccess ? 'success' : 'error'}`;
+        messageDiv.style.maxWidth = '90%';
+        messageDiv.style.padding = '12px 20px';
+        messageDiv.style.borderRadius = '8px';
+        messageDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        messageDiv.style.display = 'flex';
+        messageDiv.style.alignItems = 'center';
+        messageDiv.style.gap = '10px';
+        messageDiv.style.color = '#000';
+        messageDiv.style.backgroundColor = isSuccess ? 'rgba(16, 185, 129, 0.9)' : 'rgba(239, 68, 68, 0.9)';
+        messageDiv.style.transform = 'translateY(30px)';
+        messageDiv.style.opacity = '0';
+        messageDiv.style.transition = 'all 0.3s ease-out';
+        
+        messageDiv.innerHTML = `
+            <i class="fas fa-${isSuccess ? 'check-circle' : 'exclamation-circle'}" 
+               style="font-size: 1.2rem;"></i>
+            <span>${message}</span>
+        `;
+
+        // Ajout au conteneur
+        this.messageContainer.innerHTML = '';
+        this.messageContainer.appendChild(messageDiv);
+
+        // Animation d'apparition
+        setTimeout(() => {
+            messageDiv.style.transform = 'translateY(0)';
+            messageDiv.style.opacity = '1';
+        }, 10);
+
+        // Disparition après 5 secondes
+        setTimeout(() => {
+            messageDiv.style.opacity = '0';
+            messageDiv.style.transform = 'translateY(30px)';
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 300);
+        }, 5000);
     }
 
     captureFrame() {

@@ -7,7 +7,7 @@
     <header class="admin-header">
         <div class="header-content">
             <div class="logo-section">
-                <img src="{{ url_for('static', filename='images/DB-logo.jpeg') }}" alt="Logo Direction des Bourses" class="logo">
+                <img src="{{ url_for('static', filename='images/DB-logo.jpeg') }}" alt="Logo Autres des Bourses" class="logo">
                 <div class="title-section">
                     <h1>Administration LIGGUEY-SINAA</h1>
                     <p>Gestion des employés et des présences</p>
@@ -42,6 +42,22 @@
         <button class="nav-btn" data-section="tracking">
             <i class="fas fa-user-clock"></i>
             Suivi Agent
+        </button>
+        <button class="nav-btn" data-section="holidays">
+            <i class="fas fa-calendar-day"></i>
+            Jours Fériés
+        </button>
+        <button class="nav-btn" data-section="leaves">
+            <i class="fas fa-umbrella-beach"></i>
+            Congés
+        </button>
+        <button class="nav-btn" data-section="missions">
+            <i class="fas fa-plane-departure"></i>
+            Missions
+        </button>
+        <button class="nav-btn" data-section="authorizations">
+            <i class="fas fa-user-shield"></i>
+            Autorisations
         </button>
         <button class="nav-btn" data-section="reports">
             <i class="fas fa-chart-bar"></i>
@@ -95,11 +111,11 @@
                     <select id="absenceDepartment">
                         <option value="">Tous départements</option>
                         <option value="informatique">Informatique</option>
-                        <option value="rh">Ressources Humaines</option>
-                        <option value="commercial">Commercial</option>
-                        <option value="finance">Finance</option>
+                        <option value="rh">Gestion & RH</option>
+                        <option value="Bourse nationale">Bourse nationale</option>
+                        <option value="Bourse etrangere">Bourse etrangere</option>
                         <option value="administration">Administration</option>
-                        <option value="direction">Direction</option>
+                        <option value="Autres">Autres</option>
                     </select>
                 </div>
             </div>
@@ -113,25 +129,205 @@
         </section>
 
         <!-- Section Suivi Agent -->
-        <section id="tracking-section" class="admin-section">
+<section id="tracking-section" class="admin-section">
+    <div class="section-header">
+        <h2><i class="fas fa-user-clock"></i> Suivi des Agents</h2>
+        <div class="tracking-controls">
+            <input type="text" id="employeeSearch" placeholder="Recherche par matricule...">
+            <select id="departmentSearch">
+                <option value="">Tous départements</option>
+                <option value="informatique">Informatique</option>
+                <option value="rh">Gestion & RH</option>
+                <option value="Bourse nationale">Bourse nationale</option>
+                <option value="Bourse etrangere">Bourse etrangere</option>
+                <option value="administration">Administration</option>
+                <option value="Autres">Autres</option>
+            </select>
+            <input type="month" id="monthSearch" value="{{ current_month }}">
+            <button id="searchTrackingBtn" class="btn btn-primary">
+                <i class="fas fa-search"></i> Rechercher
+            </button>
+        </div>
+    </div>
+    
+    <div class="tracking-table-container">
+        <table class="tracking-table" id="trackingTable">
+            <thead>
+                <tr>
+                    <th>Matricule</th>
+                    <th>Nom Complet</th>
+                    <th>Département</th>
+                    <th>Date</th>
+                    <th>Heure Arrivée</th>
+                    <th>Heure Départ</th>
+                    <th>Durée</th>
+                    <th>Signature</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="9" class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        Chargement des données...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+        <!-- Section Jours Fériés -->
+        <section id="holidays-section" class="admin-section">
             <div class="section-header">
-                <h2><i class="fas fa-user-clock"></i> Suivi des Agents</h2>
+                <h2><i class="fas fa-calendar-day"></i> Gestion des Jours Fériés</h2>
+                <button id="addHolidayBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Ajouter un jour férié
+                </button>
+            </div>
+            
+            <div class="holidays-table-container">
+                <table class="holidays-table" id="holidaysTable">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Date de début</th>
+                            <th>Date de fin</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="4" class="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Chargement des jours fériés...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section Congés -->
+        <section id="leaves-section" class="admin-section">
+            <div class="section-header">
+                <h2><i class="fas fa-umbrella-beach"></i> Gestion des Congés</h2>
+                <button id="addLeaveBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Ajouter un congé
+                </button>
             </div>
             
             <div class="search-controls">
-                <input type="text" id="employeeSearch" placeholder="Recherche par matricule...">
-                <select id="departmentSearch">
-                    <option value="">Tous départements</option>
-                    <!-- Options dynamiques -->
+                <input type="text" id="leaveSearch" placeholder="Recherche par matricule...">
+                <input type="month" id="leaveMonthSearch" value="{{ current_month }}">
+            </div>
+            
+            <div class="leaves-table-container">
+                <table class="leaves-table" id="leavesTable">
+                    <thead>
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Nom Complet</th>
+                            <th>Date de début</th>
+                            <th>Date de fin</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5" class="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Chargement des congés...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section Missions -->
+        <section id="missions-section" class="admin-section">
+            <div class="section-header">
+                <h2><i class="fas fa-plane-departure"></i> Gestion des Missions</h2>
+                <button id="addMissionBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Ajouter une mission
+                </button>
+            </div>
+            
+            <div class="search-controls">
+                <input type="text" id="missionSearch" placeholder="Recherche par matricule...">
+                <input type="month" id="missionMonthSearch" value="{{ current_month }}">
+            </div>
+            
+            <div class="missions-table-container">
+                <table class="missions-table" id="missionsTable">
+                    <thead>
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Nom Complet</th>
+                            <th>Nom Mission</th>
+                            <th>Date de début</th>
+                            <th>Date de fin</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+
+
 
 
                     
-                </select>
-                <input type="month" id="monthSearch" value="{{ current_month }}">
+                    <tbody>
+                        <tr>
+                            <td colspan="6" class="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Chargement des missions...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section Autorisations -->
+        <section id="authorizations-section" class="admin-section">
+            <div class="section-header">
+                <h2><i class="fas fa-user-shield"></i> Gestion des Autorisations</h2>
+                <button id="addAuthorizationBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Ajouter une autorisation
+                </button>
             </div>
             
-            <div class="tracking-table-container">
-                <!-- Tableau dynamique -->
+            <div class="search-controls">
+                <input type="text" id="authorizationSearch" placeholder="Recherche par matricule...">
+                <input type="month" id="authorizationMonthSearch" value="{{ current_month }}">
+            </div>
+            
+            <div class="authorizations-table-container">
+                <table class="authorizations-table" id="authorizationsTable">
+                    <thead>
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Nom Complet</th>
+                            <th>Description</th>
+                            <th>Date de début</th>
+                            <th>Date de fin</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6" class="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Chargement des autorisations...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </section>
 
@@ -150,18 +346,18 @@
             
             <div class="attendance-table-container">
                 <table class="attendance-table" id="attendanceTable">
-                    <thead>
-                        <tr>
-                            <th>Matricule</th>
-                            <th>Nom Complet</th>
-                            <th>Département</th>
-                            <th>Heure d'arrivée</th>
-                            <th>Heure de départ</th>
-                            <th>Temps de travail</th>
-                            <th>Signature</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+    <thead>
+        <tr>
+            <th>Matricule</th>
+            <th>Nom Complet</th>
+            <th>Département</th>
+            <th>Heure d'arrivée</th>
+            <th>Heure de départ</th>
+            <th>Temps de travail</th>
+            <th>Signature</th>
+        </tr>
+    </thead>
+    <tbody>
                         <tr>
                             <td colspan="7" class="loading">
                                 <i class="fas fa-spinner fa-spin"></i>
@@ -182,11 +378,11 @@
                     <select id="reportDepartment">
                         <option value="">Tous départements</option>
                         <option value="informatique">Informatique</option>
-                        <option value="rh">Ressources Humaines</option>
-                        <option value="commercial">Commercial</option>
-                        <option value="finance">Finance</option>
+                        <option value="rh">Gestion & RH</option>
+                        <option value="Bourse nationale">Bourse nationale</option>
+                        <option value="Bourse etrangere">Bourse etrangere</option>
                         <option value="administration">Administration</option>
-                        <option value="direction">Direction</option>
+                        <option value="Autres">Autres</option>
                     </select>
                 </div>
             </div>
@@ -234,6 +430,7 @@
             </div>
         </section>
     </main>
+    
 </div>
 
 <!-- Modal Ajout Employé -->
@@ -244,50 +441,93 @@
             <button class="modal-close">&times;</button>
         </div>
         
-        <form id="addEmployeeForm" class="modal-form" enctype="multipart/form-data">
+        <!-- Dans admin.html (seulement la partie pertinente) -->
+<form id="addEmployeeForm" class="modal-form" enctype="multipart/form-data">
+    <div class="form-row">
+        <div class="form-group">
+            <label for="matricule">Matricule *</label>
+            <input type="text" id="matricule" name="matricule" required>
+        </div>
+        <div class="form-group">
+            <label for="nom">Nom *</label>
+            <input type="text" id="nom" name="nom" required>
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label for="prenom">Prénom *</label>
+            <input type="text" id="prenom" name="prenom" required>
+        </div>
+        <div class="form-group">
+            <label for="telephone">Téléphone</label>
+            <input type="tel" id="telephone" name="telephone">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="lieu_habitation">Lieu d'habitation</label>
+            <input type="text" id="lieu_habitation" name="lieu_habitation">
+        </div>
+        <div class="form-group">
+            <label for="departement">Département *</label>
+            <select id="departement" name="departement" required>
+                <option value="">Sélectionner un département</option>
+                <option value="informatique">Informatique</option>
+                <option value="rh">Gestion & RH</option>
+                <option value="Bourse nationale">Bourse nationale</option>
+                <option value="Bourse etrangere">Bourse etrangere</option>
+                <option value="administration">Administration</option>
+                <option value="Autres">Autres</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="photo">Photo *</label>
+        <input type="file" id="photo" name="photo" accept="image/*" required>
+        <div class="file-info">Formats acceptés: JPG, PNG, JPEG</div>
+    </div>
+    
+    <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="cancelAddEmployee">Annuler</button>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i>
+            Enregistrer
+        </button>
+    </div>
+</form>
+    </div>
+</div>
+
+<!-- Modal Ajout Jour Férié -->
+<div id="addHolidayModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-calendar-day"></i> Ajouter un Jour Férié</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        
+        <form id="addHolidayForm" class="modal-form">
+            <div class="form-group">
+                <label for="holidayDescription">Description *</label>
+                <input type="text" id="holidayDescription" name="description" required>
+            </div>
+            
             <div class="form-row">
                 <div class="form-group">
-                    <label for="matricule">Matricule *</label>
-                    <input type="text" id="matricule" name="matricule" required>
+                    <label for="holidayStartDate">Date de début *</label>
+                    <input type="date" id="holidayStartDate" name="date_debut" required>
                 </div>
                 <div class="form-group">
-                    <label for="nom">Nom *</label>
-                    <input type="text" id="nom" name="nom" required>
+                    <label for="holidayEndDate">Date de fin *</label>
+                    <input type="date" id="holidayEndDate" name="date_fin" required>
                 </div>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="prenom">Prénom *</label>
-                    <input type="text" id="prenom" name="prenom" required>
-                </div>
-                <div class="form-group">
-                    <label for="telephone">Téléphone</label>
-                    <input type="tel" id="telephone" name="telephone">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="departement">Département *</label>
-                <select id="departement" name="departement" required>
-                    <option value="">Sélectionner un département</option>
-                    <option value="informatique">Informatique</option>
-                    <option value="rh">Ressources Humaines</option>
-                    <option value="commercial">Commercial</option>
-                    <option value="finance">Finance</option>
-                    <option value="administration">Administration</option>
-                    <option value="direction">Direction</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="photo">Photo *</label>
-                <input type="file" id="photo" name="photo" accept="image/*" required>
-                <div class="file-info">Formats acceptés: JPG, PNG, JPEG</div>
             </div>
             
             <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" id="cancelAddEmployee">Annuler</button>
+                <button type="button" class="btn btn-secondary" id="cancelAddHoliday">Annuler</button>
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i>
                     Enregistrer
@@ -296,6 +536,134 @@
         </form>
     </div>
 </div>
+
+<!-- Modal Ajout Congé -->
+<div id="addLeaveModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-umbrella-beach"></i> Ajouter un Congé</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        
+        <form id="addLeaveForm" class="modal-form">
+            <div class="form-group">
+                <label for="leaveEmployee">Employé *</label>
+                <select id="leaveEmployee" name="matricule" required>
+                    <option value="">Sélectionner un employé</option>
+                    <!-- Options dynamiques -->
+                </select>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="leaveStartDate">Date de début *</label>
+                    <input type="date" id="leaveStartDate" name="date_debut" required>
+                </div>
+                <div class="form-group">
+                    <label for="leaveEndDate">Date de fin *</label>
+                    <input type="date" id="leaveEndDate" name="date_fin" required>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="cancelAddLeave">Annuler</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Enregistrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Ajout Mission -->
+<div id="addMissionModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-plane-departure"></i> Ajouter une Mission</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        
+        <form id="addMissionForm" class="modal-form">
+            <div class="form-group">
+                <label for="missionEmployee">Employé *</label>
+                <select id="missionEmployee" name="matricule" required>
+                    <option value="">Sélectionner un employé</option>
+                    <!-- Options dynamiques -->
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="missionName">Nom de la mission *</label>
+                <input type="text" id="missionName" name="nom_mission" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="missionStartDate">Date de début *</label>
+                    <input type="date" id="missionStartDate" name="date_debut" required>
+                </div>
+                <div class="form-group">
+                    <label for="missionEndDate">Date de fin *</label>
+                    <input type="date" id="missionEndDate" name="date_fin" required>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="cancelAddMission">Annuler</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Enregistrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Ajout Autorisation -->
+<div id="addAuthorizationModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-shield"></i> Ajouter une Autorisation</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        
+        <form id="addAuthorizationForm" class="modal-form">
+            <div class="form-group">
+                <label for="authorizationEmployee">Employé *</label>
+                <select id="authorizationEmployee" name="matricule" required>
+                    <option value="">Sélectionner un employé</option>
+                    <!-- Options dynamiques -->
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="authorizationDescription">Description *</label>
+                <input type="text" id="authorizationDescription" name="description" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="authorizationStartDate">Date de début *</label>
+                    <input type="date" id="authorizationStartDate" name="date_debut" required>
+                </div>
+                <div class="form-group">
+                    <label for="authorizationEndDate">Date de fin *</label>
+                    <input type="date" id="authorizationEndDate" name="date_fin" required>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="cancelAddAuthorization">Annuler</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Enregistrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
