@@ -2791,3 +2791,246 @@ tr:hover {
 .message-center.error {
     background-color: rgba(239, 68, 68, 0.9);
 }
+
+
+/* Ajoutez ces styles à style.css */
+.on-leave-row {
+    background-color: #e3f2fd !important;
+}
+
+.on-leave-badge {
+    background-color: #2196f3;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+}
+
+.leaves-table-container {
+    background: white;
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    margin-top: 1.5rem;
+}
+
+.leaves-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.leaves-table th, 
+.leaves-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.leaves-table th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+}
+
+.leave-message {
+    text-align: center;
+    padding: 20px;
+    background-color: #e3f2fd;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.leave-message i {
+    font-size: 2rem;
+    color: #2196f3;
+    margin-bottom: 10px;
+}
+
+.leave-message h3 {
+    color: #0d47a1;
+    margin-bottom: 5px;
+}
+
+/* Dans votre fichier CSS principal ou dans une balise style */
+
+.current-leave {
+    background-color: #fff8e1; /* Fond jaune clair pour les congés en cours */
+}
+
+.current-leave td:first-child {
+    border-left: 4px solid #ffc107; /* Bordure gauche jaune */
+}
+
+.on-leave-row {
+    background-color: #e8f5e9; /* Fond vert clair pour les employés en congé */
+}
+
+.on-leave-row td:first-child {
+    border-left: 4px solid #4caf50; /* Bordure gauche verte */
+}
+
+/* Styles pour les messages d'état */
+.status-badge.on_leave {
+    background-color: #4caf50;
+    color: white;
+}
+
+/* Styles pour le tableau des congés */
+.leaves-table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.leaves-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.leaves-table th {
+    background-color: #f5f5f5;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.leaves-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.leaves-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Ajouter à style.css */
+.current-leave {
+    background-color: #fff8e1 !important; /* Jaune clair pour congé en cours */
+}
+
+.past-leave {
+    opacity: 0.7;
+}
+
+.status-badge.on-leave {
+    background-color: #4caf50;
+    color: white;
+}
+
+.status-badge.past-leave {
+    background-color: #9e9e9e;
+    color: white;
+}
+
+.status-badge.future-leave {
+    background-color: #2196f3;
+    color: white;
+}
+
+.leaves-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.leaves-controls input,
+.leaves-controls select,
+.leaves-controls button {
+    padding: 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.leaves-controls button {
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.leaves-controls button:hover {
+    background-color: #1976d2;
+}
+
+/* Ajouter ces styles pour améliorer l'interface */
+#addLeaveModal .modal-content {
+    max-width: 500px;
+}
+
+#addLeaveModal .form-group {
+    margin-bottom: 1.5rem;
+}
+
+#addLeaveModal label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+#addLeaveModal input[type="text"],
+#addLeaveModal input[type="date"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+#addLeaveModal .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+/* Style pour les messages d'erreur */
+.leave-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: none;
+}
+
+    .employee-card {
+        margin-bottom: 20px;
+        padding: 15px;
+    }
+
+    .employee-info p {
+        margin: 8px 0;
+        line-height: 1.4;
+    }
+
+    .employee-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .employee-actions .btn {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+    .employee-card {
+    position: relative;
+    padding-bottom: 40px; /* Espace supplémentaire en bas */
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.employee-actions {
+    position: absolute;
+    bottom: 10px; /* Positionne les boutons en bas */
+    right: 0;
+    margin-top: 15px; /* Espace supplémentaire au-dessus des boutons */
+}
+
+.employee-actions button {
+    margin-left: 10px;
+    padding: 5px 15px;
+}

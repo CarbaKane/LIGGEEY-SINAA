@@ -77,11 +77,11 @@
             </div>
             
             <div class="employees-grid" id="employeesGrid">
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    Chargement des employés...
-                </div>
-            </div>
+    <div class="loading">
+        <i class="fas fa-spinner fa-spin"></i>
+        Chargement des employés...
+    </div>
+</div>
         </section>
 
         <!-- Section Employés Présents -->
@@ -209,43 +209,69 @@
             </div>
         </section>
 
-        <!-- Section Congés -->
-        <section id="leaves-section" class="admin-section">
-            <div class="section-header">
-                <h2><i class="fas fa-umbrella-beach"></i> Gestion des Congés</h2>
-                <button id="addLeaveBtn" class="btn btn-primary">
-                    <i class="fas fa-plus"></i>
-                    Ajouter un congé
-                </button>
+
+<!-- Dans admin.html, modifiez la section congés -->
+<section id="leaves-section" class="admin-section">
+    <div class="section-header">
+        <h2><i class="fas fa-umbrella-beach"></i> Gestion des Congés</h2>
+        <div class="header-actions">
+            <button id="addLeaveBtn" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Ajouter un congé
+            </button>
+            <button id="refreshLeavesBtn" class="btn btn-secondary">
+                <i class="fas fa-sync-alt"></i> Actualiser
+            </button>
+        </div>
+    </div>
+    <div class="search-controls">
+        <input type="text" id="leaveSearch" placeholder="Recherche par matricule..." 
+               class="search-input">
+        <input type="month" id="leaveMonthSearch" class="month-input">
+        <button id="searchLeavesBtn" class="btn btn-secondary">
+            <i class="fas fa-search"></i> Rechercher
+        </button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="leaves-table" id="leavesTable">
+            <thead>
+                <tr>
+                    <th>Matricule</th>
+                    <th>Nom Complet</th>
+                    <th>Date Début</th>
+                    <th>Date Fin</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="6" class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Chargement des congés...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="summary-card">
+        <div class="summary-item">
+            <i class="fas fa-calendar-day"></i>
+            <div>
+                <h3>Congés en cours</h3>
+                <span id="currentLeavesCount">0</span>
             </div>
-            
-            <div class="search-controls">
-                <input type="text" id="leaveSearch" placeholder="Recherche par matricule...">
-                <input type="month" id="leaveMonthSearch" value="{{ current_month }}">
+        </div>
+        <div class="summary-item">
+            <i class="fas fa-calendar-plus"></i>
+            <div>
+                <h3>Congés à venir</h3>
+                <span id="upcomingLeavesCount">0</span>
             </div>
-            
-            <div class="leaves-table-container">
-                <table class="leaves-table" id="leavesTable">
-                    <thead>
-                        <tr>
-                            <th>Matricule</th>
-                            <th>Nom Complet</th>
-                            <th>Date de début</th>
-                            <th>Date de fin</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td colspan="5" class="loading">
-                                <i class="fas fa-spinner fa-spin"></i>
-                                Chargement des congés...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+        </div>
+    </div>
+</section>
+
 
         <!-- Section Missions -->
         <section id="missions-section" class="admin-section">
@@ -486,7 +512,7 @@
     
     <div class="form-group">
         <label for="photo">Photo *</label>
-        <input type="file" id="photo" name="photo" accept="image/*" required>
+        <input type="file" id="employeePhoto"  name="photo" accept="image/*" required>
         <div class="file-info">Formats acceptés: JPG, PNG, JPEG</div>
     </div>
     
@@ -539,42 +565,95 @@
 
 <!-- Modal Ajout Congé -->
 <div id="addLeaveModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-calendar-plus"></i> Ajouter un Congé</h3>
+      <button class="modal-close">&times;</button>
+    </div>
+    <form id="addLeaveForm" class="modal-form">
+      <div class="form-group">
+        <label for="leaveMatricule">
+          <i class="fas fa-id-card"></i> Matricule de l'employé *
+        </label>
+        <input type="text" id="leaveMatricule" name="matricule" required 
+               placeholder="Ex: DB003">
+      </div>
+      
+      <div class="form-group">
+        <label for="leaveStartDate">
+          <i class="fas fa-calendar-day"></i> Date de début *
+        </label>
+        <input type="date" id="leaveStartDate" name="date_debut" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="leaveEndDate">
+          <i class="fas fa-calendar-day"></i> Date de fin *
+        </label>
+        <input type="date" id="leaveEndDate" name="date_fin" required>
+      </div>
+      
+      <div class="modal-actions">
+        <button type="button" id="cancelAddLeave" class="btn btn-secondary">
+          <i class="fas fa-times"></i> Annuler
+        </button>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i> Enregistrer
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="updateEmployeeModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3><i class="fas fa-umbrella-beach"></i> Ajouter un Congé</h3>
+            <h3><i class="fas fa-user-edit"></i> Modifier un employé</h3>
             <button class="modal-close">&times;</button>
         </div>
-        
-        <form id="addLeaveForm" class="modal-form">
+        <form id="updateEmployeeForm" class="modal-form">
+            <input type="hidden" id="updateMatricule" name="matricule">
+            
             <div class="form-group">
-                <label for="leaveEmployee">Employé *</label>
-                <select id="leaveEmployee" name="matricule" required>
-                    <option value="">Sélectionner un employé</option>
-                    <!-- Options dynamiques -->
-                </select>
+                <label for="updateNom"><i class="fas fa-id-card"></i> Nom</label>
+                <input type="text" id="updateNom" name="nom" required>
             </div>
             
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="leaveStartDate">Date de début *</label>
-                    <input type="date" id="leaveStartDate" name="date_debut" required>
-                </div>
-                <div class="form-group">
-                    <label for="leaveEndDate">Date de fin *</label>
-                    <input type="date" id="leaveEndDate" name="date_fin" required>
-                </div>
+            <div class="form-group">
+                <label for="updatePrenom"><i class="fas fa-user"></i> Prénom</label>
+                <input type="text" id="updatePrenom" name="prenom" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="updateTelephone"><i class="fas fa-phone"></i> Téléphone</label>
+                <input type="text" id="updateTelephone" name="telephone">
+            </div>
+            
+            <div class="form-group">
+                <label for="updateLieuHabitation"><i class="fas fa-home"></i> Lieu d'habitation</label>
+                <input type="text" id="updateLieuHabitation" name="lieu_habitation">
+            </div>
+            
+            <div class="form-group">
+                <label for="updateDepartement"><i class="fas fa-building"></i> Département</label>
+                <input type="text" id="updateDepartement" name="departement" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="updatePhoto"><i class="fas fa-camera"></i> Photo (laisser vide pour ne pas changer)</label>
+                <input type="file" id="updatePhoto" name="photo" accept="image/*">
+                <div class="file-info">Formats acceptés: JPG, JPEG, PNG</div>
             </div>
             
             <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" id="cancelAddLeave">Annuler</button>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i>
-                    Enregistrer
-                </button>
+                <button type="button" id="cancelUpdateEmployee" class="btn btn-secondary">Annuler</button>
+                <button type="submit" class="btn btn-primary">Mettre à jour</button>
             </div>
         </form>
     </div>
 </div>
+
+
 
 <!-- Modal Ajout Mission -->
 <div id="addMissionModal" class="modal">
@@ -585,13 +664,11 @@
         </div>
         
         <form id="addMissionForm" class="modal-form">
-            <div class="form-group">
-                <label for="missionEmployee">Employé *</label>
-                <select id="missionEmployee" name="matricule" required>
-                    <option value="">Sélectionner un employé</option>
-                    <!-- Options dynamiques -->
-                </select>
-            </div>
+          <div class="form-group">
+    <label for="missionMatricule">Matricule de l'employé</label>
+    <input type="text" id="missionMatricule" class="form-control" required
+           placeholder="Entrez le matricule de l'employé">
+</div>
             
             <div class="form-group">
                 <label for="missionName">Nom de la mission *</label>
